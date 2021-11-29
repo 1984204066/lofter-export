@@ -1,0 +1,11 @@
+[package]
+edition = "2021"
+name = "xuefa"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+salvo = { version = "0.16", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+urlencoding = "1.1.1"
