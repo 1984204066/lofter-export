@@ -24,17 +24,16 @@ async fn main() {
 async fn create_article(req: &mut Request, res: &mut Response) {
     // println!("{:?}", req);
     let msg =req.read_text().await.unwrap();
-    // let msg =  msg.to_string();
     let msg = decode(msg).unwrap();
-    println!("{:#?}", msg);
+    // println!("{:#?}", msg);
     let mut fid= "".to_string();
     if let Some(id) = req.get_param::<String>("id") {
 	println!("{}", id);
 	fid = id;
+	let mut file = std::fs::File::create(fid).expect("create failed");
+	file.write_all(msg.as_bytes());
     } else {
 	println!("get nil");
     }
-    let mut file = std::fs::File::create(fid).expect("create failed");
-    file.write_all(msg.as_bytes());
     res.set_status_code(StatusCode::OK);
 }
