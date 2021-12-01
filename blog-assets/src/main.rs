@@ -41,7 +41,7 @@ fn main() {
 		let tag=  get_tag(&html.chars());
 		let prefix = format!("---
 layout: post
-title:  {}
+title:  \"{}\"
 date:   {}
 tags:
       - {}
