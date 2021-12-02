@@ -1,0 +1,26 @@
+<div class="txtcont">
+													
+													
+													<p> grub2-install --target=i386-pc&nbsp;--boot-directory=/mnt/usb&nbsp;/dev/sdc<br>&nbsp;<br>&nbsp;我的custom.cfg位于(usb)/boot/grub2/custom.cfg<br>&nbsp;<br> menuentry "Fedora 22 Live Workstation (64 bit)"&nbsp;{&nbsp;<br> insmod part_msdos<br> insmod fat<br> insmod iso9660<br> set isoname="Fedora-Games-Live-x86_64-26-1.5"<br> set isofile="/${isoname}.iso"&nbsp;<br> set USBUUID="6594-1C6E"<br> search --no-floppy&nbsp;--fs-uuid&nbsp;--set=root&nbsp;${USBUUID}&nbsp;<br> loopback loop $isofile&nbsp;<br> linux (loop)/isolinux/vmlinuz iso-scan/filename=${isofile} root=live:CDLABEL=Fedora-Game-Live-26-1-5 rootfstype=auto ro rd.live.image quiet&nbsp; rhgb<br> initrd (loop)/isolinux/initrd.img<br>&nbsp;}<br>&nbsp;<br>&nbsp;网上的可以试试：<br></p> 
+<p><a rel="nofollow" href="https://blog.csdn.net/bingo_boy/article/details/6957698" target="_blank">fedora 16 livecd硬盘u盘&nbsp;安装</a>&nbsp;新建一个目录,&nbsp;比如fedora,&nbsp;然后将iso解压到此文件夹中.&nbsp;</p> 
+<p>则grub.cfg需要修改成如下</p> 
+<p> menuentry “Fedora Live CD”{<br> set root=”(hd0,msdos1)”<br>&nbsp;<a rel="nofollow" href="https://lib.csdn.net/base/linux" target="_blank">Linux</a>&nbsp;/fedora/isolinux/vmlinuz0 root=UUID=0C02-A283 live_dir=/fedora/LiveOS/ liveimg quiet rhgb rootfstype=auto <br> initrd /fedora/isolinux/initrd0.img<br>&nbsp;}</p> 
+<p><br></p> 
+<blockquote> 
+ <p>vgscan</p> 
+ <p>vgchange -a y fedora</p> 
+ <p>mount /dev/mapper/fedora-root&nbsp;&nbsp;/mnt</p> 
+ <p>mount&nbsp;/dev/sda8&nbsp;/mnt/boot</p> 
+ <p>mount&nbsp;/dev/sda2&nbsp;/mnt/boot/efi<br>mount --bind&nbsp;/dev/&nbsp;/mnt/dev<br>mount --bind&nbsp;/dev/pts&nbsp;/mnt/dev/pts<br>mount --bind&nbsp;/proc&nbsp;/mnt/proc<br>mount --bind&nbsp;/sys&nbsp;/mnt/sys<br><br>chroot /mnt</p> 
+ <p>grub-install&nbsp;--target=x86_64-efi&nbsp;/dev/sda<br></p> 
+ <p>然后系统报错grub2-install: error:&nbsp;/usr/lib/grub/x86_64-efi/modinfo.sh doesn't exist. Please specify --target or --directory</p> 
+ <p>dnf reinstall&nbsp; grub2-efi-x64.x86_64</p> 
+ <p>dnf install grub2-efi-x64-modules.noarch</p> 
+ <p><br></p> 
+ <p>grub2-mkconfig -o&nbsp;/boot/efi/EFI/fedora/grub.cfg</p> 
+ <p><br></p> 
+ <p>exit&amp;&amp;sudo umount/mnt/sys &amp;&amp;sudo umount/mnt/proc &amp;&amp;sudo umount/mnt/dev/pts &amp;&amp;sudo umount/mnt/dev &amp;&amp;sudo umount/mnt<br></p> 
+ <p>grub2-mkconfig -o&nbsp;/boot/efi/EFI/fedora/grub.cfg<br></p> 
+</blockquote>
+													
+												</div>

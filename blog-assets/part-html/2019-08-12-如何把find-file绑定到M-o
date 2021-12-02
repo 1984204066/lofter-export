@@ -1,0 +1,20 @@
+<div class="txtcont">
+													
+													
+													<p><a rel="nofollow" href="https://www.cnblogs.com/yjie/p/4059145.html" target="_blank">一些有用的 Emacs 配置（窗口快速切换、一键透明效果、任意位置删除整行等）</a>&nbsp;&nbsp;&nbsp;</p> 
+<p>上文提到的&nbsp;（emacs操作 global-set-key）<br></p> 
+<blockquote> 
+ <p>以org-mode为例，怎么知道这个模式所定义的按键map是什么呢？非常简单，C-h f &lt;RET&gt; org-mode &lt;RET&gt;查看org-mode的帮助文档，就会出现org-mode代码所在的el文件，进入这个文件，搜索：-map，就会找到org-mode-map这个变量。<br></p> 
+</blockquote> 
+<p>或者<br></p> 
+<p>C-x C-q 取消buffer的只读性质。&nbsp;然后粘贴输入<br></p> 
+<p>(lookup-key global-map (kbd&nbsp;"M-o"))&nbsp;;;&nbsp;用C-x C-e 执行这一行。<br></p> 
+<blockquote> 
+ <p>facemenu-keymap</p> 
+</blockquote> 
+<p>(local-unset-key (kbd&nbsp;"C-x p"))<br></p> 
+<p>(define-key global-map "M-o" nil)</p> 
+<p>^上面是错的。&nbsp;直接就行。</p> 
+<p>;;(global-unset-key (kbd&nbsp;"M-o"))<br>(global-set-key (kbd&nbsp;"M-o")&nbsp;'find-file)<br><br><br></p>
+													
+												</div>

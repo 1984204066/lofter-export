@@ -1,0 +1,20 @@
+<div class="txtcont">
+													
+													
+													<p><a rel="nofollow" href="https://www.cnblogs.com/qccz123456/p/11009502.html" target="_blank">How to compile and install Linux Kernel 5.1.2 from source code</a><br></p> 
+<p>下载 linux-5.4.1</p> 
+<p>cp /boot/config-5.3.13-300.fc31.x86_64 linux-5.4.1/.config</p> 
+<p>make xconfig &nbsp;或者&nbsp;(defconfig, oldconfig, config, gconfig)<br></p> 
+<p>make -j 4</p> 
+<p>sudo make modules_install</p> 
+<p>sudo make install</p> 
+<p><br></p> 
+<p>sudo grubby --set-default&nbsp;/boot/vmlinuz-5.1.2&nbsp;&nbsp;&nbsp;#安装自己定义的名称来设置</p> 
+<p><br></p> 
+<p>生成tag</p> 
+<p>gtags -v</p> 
+<p>htags&nbsp;-DfFnva&nbsp;-t&nbsp;'kernel 5.4.1 Ref'</p> 
+<p>htags-server &nbsp;&nbsp;#&nbsp;默认https://127.0.0.1:8000<br></p> 
+<p><br></p>
+													
+												</div>

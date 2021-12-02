@@ -1,0 +1,31 @@
+<div class="txtcont">
+													
+													
+													<p> </p> 
+<p> https://www.newsmth.net/nForum/#!article/CPlusPlus/374960 &nbsp;</p> 
+<p><br></p> 
+<p><br></p> 
+<p>https://github.com/rockeet/nark-rpc&nbsp;</p> 
+<p>&nbsp;&nbsp;</p> 
+<p>RPC(Remote Procedure Call) on top of nark-serialization&nbsp;</p> 
+<p>&nbsp;&nbsp;</p> 
+<p>+++++++++++++++++++++++++++++++++++++&nbsp;</p> 
+<p>&nbsp;&nbsp;</p> 
+<p> https://github.com/rockeet/nark-serialization&nbsp;</p> 
+<p>&nbsp;&nbsp;</p> 
+<p>An easy, fast, small, portable C++ object serialization &nbsp;</p> 
+<p>framework&nbsp;</p> 
+<p>&nbsp;&nbsp;</p> 
+<p>Features:&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Declarative syntax, Easy to use, Easy to integrate&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Fast at runtime, Fast at compile time&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Serialized data is small, Compiled code is small&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Support STL containers &amp; types&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Can serialize to BigEndian/LittleEndian in any platform&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Support variant int/uint encoding&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;Optional serialization version control&nbsp;</p> 
+<p>&nbsp; &nbsp; &nbsp;More and more...&nbsp;</p> 
+<p>&nbsp;&nbsp;</p> 
+<p>&nbsp;&nbsp;</p>
+													
+												</div>

@@ -1,0 +1,14 @@
+<div class="txtcont">
+													
+													
+													<p>(defun cn (x)&nbsp;(let&nbsp;(y)&nbsp;(if&nbsp;(&lt;=&nbsp;(length x) 1)&nbsp;(list x)&nbsp;(progn (setq first (substring x 0 1))&nbsp;(setq y (substring x 1 (length x)))&nbsp;(setq z (cn y))&nbsp;(list z (list first)&nbsp;(mapcar (lambda&nbsp;(e)&nbsp;(append&nbsp;(list first) e)) z))))))</p> 
+<p><br></p> 
+<p>(defun cn (x)&nbsp;(let&nbsp;(y)&nbsp;(if&nbsp;(&lt;=&nbsp;(length x) 1) x (progn&nbsp;(setq first (substring x 0 1))&nbsp;(setq y (substring x 1 -1)&nbsp;(setq z (cn y))&nbsp;(print z)(concat z "&nbsp;" first "&nbsp;"&nbsp;(mapcar&nbsp;(lambda&nbsp;(e)&nbsp;(concat first e))&nbsp;(list z)))))))）</p> 
+<p><br></p> 
+<p>&nbsp;(defun cn (x)&nbsp;(let&nbsp;((y)&nbsp;(first&nbsp;(substring x 0 1)))&nbsp;(if (&lt;=&nbsp;(length x) 1) x (progn&nbsp;(setq y (substring x 1 (length x)))&nbsp;(setq z (cn y))&nbsp;(print first)&nbsp;(concat z "&nbsp;" first "&nbsp;"&nbsp;(mapconcat&nbsp;'identity&nbsp;(mapcar&nbsp;(lambda&nbsp;(e)&nbsp;(concat first e))&nbsp;(list z))&nbsp;"&nbsp;"))))))</p> 
+<p><br></p> 
+<p>(defun cn (x)&nbsp;(let&nbsp;((y)&nbsp;(first&nbsp;(substring x 0 1)))&nbsp;(if (&lt;=&nbsp;(length x) 1) x (progn&nbsp;(setq y (substring x 1 (length x)))&nbsp;(setq z (cn y))&nbsp;(print first)&nbsp;(concat z "&nbsp;" first "&nbsp;"&nbsp;(mapconcat&nbsp;'identity&nbsp;(mapcar&nbsp;(lambda&nbsp;(e)&nbsp;(concat first e))&nbsp;(split-string z "&nbsp;"))&nbsp;"&nbsp;"))))))</p> 
+<p><br></p> 
+<p>(defun cn (x)<br>&nbsp;&nbsp;(let ((y)<br>&nbsp;&nbsp;&nbsp;&nbsp;(first (substring x 0 1)))<br>&nbsp;&nbsp;&nbsp;&nbsp;(if (&lt;=&nbsp;(length x) 1)<br>&nbsp;&nbsp;&nbsp; x<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(progn<br>&nbsp;&nbsp;&nbsp;&nbsp;(setq y (substring x 1 (length x)))<br>&nbsp;&nbsp;&nbsp;&nbsp;(setq z (cn y))<br>&nbsp;&nbsp;&nbsp;&nbsp;(concat z "&nbsp;" first "&nbsp;"&nbsp;(mapconcat&nbsp;'identity&nbsp;(mapcar&nbsp;(lambda&nbsp;(e)&nbsp;(concat first e))&nbsp;(split-string z "&nbsp;"))&nbsp;"&nbsp;"))))))<br><br>cn("abcd")&nbsp;<br> d c cd b bd bc bcd a ad ac acd ab abd abc abcd <br>&nbsp;呵呵。&nbsp;<br>&nbsp;&nbsp;<br><br><br></p>
+													
+												</div>

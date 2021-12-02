@@ -1,0 +1,7 @@
+<div class="txtcont">
+													
+													
+													<p><a rel="nofollow" href="https://www.jianshu.com/p/cc6379e43992" target="_blank">Emacs M$&nbsp;系统下特别慢</a></p> 
+<p>打开Emacs，点击菜单栏的Options，使用Set Default Font 。<br>把原来的Courier New 改成黑体（个人比较喜欢黑体，当然你也可以设为其他字体，只要不再出现卡顿的情况就可以了）。<br>保存后，Emacs就不会再卡顿了。<br></p>
+													
+												</div>

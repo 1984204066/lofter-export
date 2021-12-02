@@ -1,0 +1,21 @@
+<div class="txtcont">
+													
+													
+													<p>win7下先share目录ISO</p> 
+<p><br></p> 
+<p>Linux：</p> 
+<p>smbclient -L 192.168.1.101</p> 
+<p><br></p> 
+<blockquote> 
+ <p><br>&nbsp;&nbsp;&nbsp; Sharename &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type &nbsp;&nbsp;&nbsp;&nbsp; Comment<br>&nbsp;&nbsp;&nbsp;&nbsp;---------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-------<br>&nbsp;&nbsp;&nbsp; ADMIN$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disk &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;远程管理<br>&nbsp;&nbsp;&nbsp; C$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disk &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;默认共享<br>&nbsp;&nbsp;&nbsp; D$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disk &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;默认共享<br>&nbsp;&nbsp;&nbsp; IPC$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;远程 IPC<br>&nbsp;&nbsp;&nbsp; ISO-ghost &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disk &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br></p> 
+</blockquote> 
+<p><br></p> 
+<p><br>smbclient //192.168.1.101/ISO-ghost&nbsp;-U username%password</p> 
+<blockquote> 
+ <p>Enter SAMBA\gsdj's password:&nbsp;<br>Try "help" to get a list of possible commands.<br>smb:&nbsp;\&gt; ls<br><br>smb:&nbsp;\&gt; get Win10PE_17763.107x64精简.iso<br><br></p> 
+ <p>smb:&nbsp;\&gt; q<br></p> 
+</blockquote> 
+<p>还可以挂载&nbsp;</p> 
+<p>mount -t cifs -o username=administrator,password=123456 //192.168.0.1/tmp&nbsp;/mnt/tmp&nbsp;<br></p>
+													
+												</div>

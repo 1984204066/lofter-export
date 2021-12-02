@@ -1,0 +1,180 @@
+<div class="txtcont">
+													
+													
+													<p dir="ltr">https://www.newsmth.net/nForum/#!article/CPlusPlus/403674</p> 
+<p dir="ltr">下面的英文是从教程里摘出来的。然后有点没看懂：make_unique 是cpp14引入的，&nbsp;<br> 在这之前，下面叙述里的 foo 函数要怎么写才可以避免意外的内存泄露呢？&nbsp;<br> &nbsp;&nbsp;<br> -------------------------------------------------------------&nbsp;<br> If your compiler does not yet support make_unique()&nbsp;, you can &nbsp;<br> create your unique_ptr as follows. Note that Simple must be mentioned twice:&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; unique_ptr&lt;Simple&gt; mySimpleSmartPtr(new Simple());&nbsp;<br> &nbsp;&nbsp;<br> Before C++17, you had to use make_unique() not only because you have to specify &nbsp;<br> the type only once, but also because of safety reasons! Consider the following &nbsp;<br> call to a function called foo()&nbsp;:&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; foo(unique_ptr&lt;Simple&gt;(new Simple()), unique_ptr&lt;Bar&gt;(new Bar(data())));&nbsp;<br> &nbsp;&nbsp;<br> If the constructor of Simple or Bar , or the data() function, throws an exception, depending on <br> your compiler optimizations, it was very possible that either a Simple or a Bar object would be <br> leaked.&nbsp;</p> 
+<p dir="ltr">按照后人的说法：</p> 
+<p dir="ltr">unique_ptr&lt;T&gt; t(new T())本身不危险</p> 
+<p dir="ltr">关键不在于一个对象产生的内存泄漏，c++不至于傻逼到ctor里面抛异常了连这个对象本身的内存都回收不了。这里的关键是传进去2个对象，当1个对象的ctor抛异常后能不能回收new另一个对象时候分配的内存。&nbsp;<br> 要点就是一旦new成功就立刻交给一个智能指针，这就是为啥要用make_unique </p> 
+<p dir="ltr">&nbsp;&nbsp;</p> 
+<p dir="ltr">也就是说 A* p=new A();&nbsp;如果A()抛出异常的话，那么p=null.&nbsp;即对象本身的内存回收了。<br></p> 
+<p dir="ltr">关键在于gcc 的优化，foo(unique_ptr&lt;Simple&gt;(new Simple()), unique_ptr&lt;Bar&gt;(new Bar(data())));&nbsp;</p> 
+<p dir="ltr">可以变成：&nbsp;<br></p> 
+<p dir="ltr">new Simple()</p> 
+<p dir="ltr">new Bar(data())</p> 
+<p dir="ltr">unique_ptr&lt;Simple&gt;</p> 
+<p dir="ltr">unique_ptr&lt;Bar&gt;</p> 
+<p dir="ltr">只能说是悲剧的gcc，太害人了。</p> 
+<p dir="ltr">refer:&nbsp;https://blog.csdn.net/u011475134/article/details/76714243</p> 
+<p dir="ltr">refer:&nbsp;https://blog.csdn.net/Jxianxu/article/details/72859800?utm_source=blogxgwz0<br></p> 
+<p dir="ltr">有点意思，后人演示代码：&nbsp;对于make_unique处理不了的private ctor，就只能由factory method直接返回unique_ptr <br></p> 
+<p dir="ltr">你可以直接点run看运行结果：&nbsp;<br> &nbsp;</p> 
+<blockquote> 
+ <p dir="ltr">allocate 4 bytes at 0x1616c20 <br> throw exception <br> free 0x1616c20 <br> allocate 4 bytes at 0x1616c20 <br> allocate 4 bytes at 0x1617050 <br> throw exception <br> free 0x1617050 <br> free 0x1616c20 <br> allocate 4 bytes at 0x1616c20 <br> throw exception <br> free 0x1616c20 <br> </p> 
+</blockquote> 
+<p dir="ltr">没有内存泄露。&nbsp;<br> &nbsp;&nbsp;<br> 刚发现你是不是连主贴里讨论的东西都没看明白？&nbsp;<br> 关键不在于一个对象产生的内存泄漏，c++不至于傻逼到ctor里面抛异常了连这个对象本身的内存都回收不了。这里的关键是传进去2个对象，当1个对象的ctor抛异常后能不能回收new另一个对象时候分配的内存。&nbsp;<br> 要点就是一旦new成功就立刻交给一个智能指针，这就是为啥要用make_unique <br> 对于make_unique处理不了的private ctor，就只能由factory method直接返回unique_ptr <br> &nbsp;&nbsp;<br> 全部代码：&nbsp;<br></p> 
+<blockquote> 
+ <p dir="ltr">#include &lt;memory&gt;&nbsp;<br> #include &lt;iostream&gt;&nbsp;<br> using namespace std;&nbsp;<br> &nbsp;&nbsp;<br> template &lt;bool Exception&gt;&nbsp;<br> class A {&nbsp;<br> &nbsp; public:&nbsp;<br> &nbsp;&nbsp; static unique_ptr&lt;A&gt; Create()&nbsp;&nbsp;{&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; unique_ptr&lt;A&gt; p(new A);&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; return p;&nbsp;<br> &nbsp;&nbsp;&nbsp;}&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp; void* operator new(size_t size)&nbsp;{&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; void* p = malloc(size);&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt;&nbsp;"allocate&nbsp;"&nbsp;&lt;&lt; size &lt;&lt;&nbsp;" bytes at "&nbsp;&lt;&lt; p &lt;&lt; endl;&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; return p;&nbsp;<br> &nbsp;&nbsp;&nbsp;}&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp; void operator delete(void* p)&nbsp;{&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt;&nbsp;"free&nbsp;"&nbsp;&lt;&lt; p &lt;&lt; endl;&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; free(p);&nbsp;<br> &nbsp;&nbsp;&nbsp;}&nbsp;<br> &nbsp;&nbsp;<br> &nbsp; private:&nbsp;<br> &nbsp;&nbsp; A()&nbsp;{&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; if (Exception)&nbsp;{&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt;&nbsp;"throw exception\n";&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw 0;&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br> &nbsp;&nbsp;&nbsp;}&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp; int date;&nbsp;<br> };&nbsp;<br> &nbsp;&nbsp;<br> template &lt;class First, class Second&gt;&nbsp;<br> void Foo(unique_ptr&lt;First&gt; first, unique_ptr&lt;Second&gt; second)&nbsp;{&nbsp;}&nbsp;<br> &nbsp;&nbsp;<br> int main()&nbsp;{&nbsp;<br> &nbsp;&nbsp; try {&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; auto p = A&lt;true&gt;::Create();&nbsp;<br> &nbsp;&nbsp;&nbsp;} catch (...)&nbsp;{}&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp; try {&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; Foo(A&lt;true&gt;::Create(), A&lt;false&gt;::Create());&nbsp;<br> &nbsp;&nbsp;&nbsp;} catch (...)&nbsp;{}&nbsp;<br> &nbsp;&nbsp;<br> &nbsp;&nbsp; try {&nbsp;<br> &nbsp;&nbsp;&nbsp;&nbsp; Foo(A&lt;false&gt;::Create(), A&lt;true&gt;::Create());&nbsp;<br> &nbsp;&nbsp;&nbsp;} catch (...)&nbsp;{}&nbsp;<br> }&nbsp;<br> </p> 
+</blockquote> 
+<p dir="ltr">&nbsp;&nbsp;</p> 
+<p dir="ltr">附录：&nbsp;https://blog.csdn.net/u011475134/article/details/76714243&nbsp;<br> 智能指针之make_unique与make_shared</p> 
+<p dir="ltr">make_unique的实现</p> 
+<p dir="ltr">std::make_shared是C++11的一部分，但是std::make_unique很可惜不是。它是在C++14里加入标准库的，但我们可以自己实现make_unique方法。<br></p> 
+<p dir="ltr">//&nbsp;支持普通指针</p> 
+<p dir="ltr">template&lt;class T,class... Args&gt; inline</p> 
+<p dir="ltr">typename enable_if&lt;!is_array&lt;T&gt;::value,unique_ptr&lt;T&gt;&gt;::type</p> 
+<p dir="ltr">make_unique(Args&amp;&amp;... args){</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; return unique_ptr&lt;T&gt;(new T(std::forward&lt;Args&gt;(args)...));</p> 
+<p dir="ltr">}<br></p> 
+<p dir="ltr">//&nbsp;支持动态数组</p> 
+<p dir="ltr">template&lt;class T&gt; inline</p> 
+<p dir="ltr">typename enable_if&lt;is_array&lt;T&gt;::value &amp;&amp; extent&lt;T&gt;::value == 0,unique_ptr&lt;T&gt;&gt;::type</p> 
+<p dir="ltr">make_unique(size_t size){</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; typedef typename remove_extent&lt;T&gt;::type U;</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; return unique_ptr&lt;T&gt;(new U[size]());</p> 
+<p dir="ltr">}<br></p> 
+<p dir="ltr">//&nbsp;过滤掉定长数组的情况</p> 
+<p dir="ltr">template&lt;class T,class... Args&gt;</p> 
+<p dir="ltr">typename enable_if&lt;extent&lt;T&gt;::value != 0,void&gt;::type</p> 
+<p dir="ltr">make_unique(Args&amp;&amp;...)&nbsp;= delete;</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">2</p> 
+<p dir="ltr">3</p> 
+<p dir="ltr">4</p> 
+<p dir="ltr">5</p> 
+<p dir="ltr">6</p> 
+<p dir="ltr">7</p> 
+<p dir="ltr">8</p> 
+<p dir="ltr">9</p> 
+<p dir="ltr">10</p> 
+<p dir="ltr">11</p> 
+<p dir="ltr">12</p> 
+<p dir="ltr">13</p> 
+<p dir="ltr">14</p> 
+<p dir="ltr">15</p> 
+<p dir="ltr">16</p> 
+<p dir="ltr">17</p> 
+<p dir="ltr">18</p> 
+<p dir="ltr">19</p> 
+<p dir="ltr">enable_if的作用<br></p> 
+<p dir="ltr">// Primary template.</p> 
+<p dir="ltr">/// Define a member typedef @c type only if a boolean constant is true.</p> 
+<p dir="ltr">template&lt;bool, typename _Tp = void&gt;</p> 
+<p dir="ltr">&nbsp; struct enable_if</p> 
+<p dir="ltr">&nbsp;&nbsp;{&nbsp;};<br></p> 
+<p dir="ltr">// Partial specialization for true.</p> 
+<p dir="ltr">template&lt;typename _Tp&gt;</p> 
+<p dir="ltr">&nbsp; struct enable_if&lt;true, _Tp&gt;</p> 
+<p dir="ltr">&nbsp;&nbsp;{ typedef _Tp type;&nbsp;};</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">2</p> 
+<p dir="ltr">3</p> 
+<p dir="ltr">4</p> 
+<p dir="ltr">5</p> 
+<p dir="ltr">6</p> 
+<p dir="ltr">7</p> 
+<p dir="ltr">8</p> 
+<p dir="ltr">9</p> 
+<p dir="ltr">10</p> 
+<p dir="ltr">结合源码可知，当condition==true时，enable_if&lt;condition,T&gt;::type ≡ T，否则报错。<br></p> 
+<p dir="ltr">enable_if&lt;!is_array&lt;T&gt;::value,unique_ptr&lt;T&gt;&gt;::type的condition在T不是数组类型时为true</p> 
+<p dir="ltr">enable_if&lt;is_array&lt;T&gt;::value &amp;&amp; extent&lt;T&gt;::value == 0,unique_ptr&lt;T&gt;&gt;::type的condition在T为数组类型且数组中元素个数为0时为true，由于对于非数组类型extent&lt;U&gt;::value也为0，语句is_array&lt;T&gt;::value是必要的</p> 
+<p dir="ltr">enable_if&lt;extent&lt;T&gt;::value != 0,void&gt;::type的condition在T类型中元素个数不为0时为true，即T为定长数组</p> 
+<p dir="ltr">std::forward的作用<br></p> 
+<p dir="ltr">std::forward在这里的作用是实现参数的完美转发，具体见《move和forward源码分析[转]》。<br></p> 
+<p dir="ltr">make函数的好处</p> 
+<p dir="ltr">1.&nbsp;效率更高<br></p> 
+<p dir="ltr">shared_ptr需要维护引用计数的信息。如果你通过使用原始的new表达式分配对象，然后传递给shared_ptr（也就是使用shared_ptr的构造函数）的话，shared_ptr的实现没有办法选择，而只能单独的分配控制块：<br><br><br></p> 
+<p dir="ltr">如果选择使用make_shared的话，情况就会变成下面这样：<br><br><br></p> 
+<p dir="ltr">内存分配的动作，可以一次性完成。这减少了内存分配的次数，而内存分配是代价很高的操作。<br></p> 
+<p dir="ltr">2.&nbsp;异常安全<br></p> 
+<p dir="ltr">看看下面的代码：<br></p> 
+<p dir="ltr">void F(const std::shared_ptr&lt;Lhs&gt;&amp; lhs, const std::shared_ptr&lt;Rhs&gt;&amp; rhs)&nbsp;{&nbsp;/*&nbsp;...&nbsp;*/&nbsp;}<br></p> 
+<p dir="ltr">F(std::shared_ptr&lt;Lhs&gt;(new Lhs("foo")),</p> 
+<p dir="ltr">&nbsp; std::shared_ptr&lt;Rhs&gt;(new Rhs("bar")));</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">2</p> 
+<p dir="ltr">3</p> 
+<p dir="ltr">4</p> 
+<p dir="ltr">C++是不保证参数求值顺序，以及内部表达式的求值顺序的，所以可能的执行顺序如下：<br></p> 
+<p dir="ltr">new Lhs(“foo”))</p> 
+<p dir="ltr">new Rhs(“bar”))</p> 
+<p dir="ltr">std::shared_ptr</p> 
+<p dir="ltr">std::shared_ptr</p> 
+<p dir="ltr">假设在第2步的时候，抛出了一个异常（比如out of memory，总之，Rhs的构造函数异常了），那么第一步申请的Lhs对象内存泄露了。这个问题的核心在于，shared_ptr没有立即获得裸指针。<br></p> 
+<p dir="ltr">我们可以用如下方式来修复这个问题：<br></p> 
+<p dir="ltr">auto lhs = std::shared_ptr&lt;Lhs&gt;(new Lhs("foo"));</p> 
+<p dir="ltr">auto rhs = std::shared_ptr&lt;Rhs&gt;(new Rhs("bar"));</p> 
+<p dir="ltr">F(lhs, rhs);</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">2</p> 
+<p dir="ltr">3</p> 
+<p dir="ltr">当然，推荐的做法是使用std::make_shared来代替：<br></p> 
+<p dir="ltr">F(std::make_shared&lt;Lhs&gt;("foo"), std::make_shared&lt;Rhs&gt;("bar"));</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">当std::make_shared被调用，指向动态内存对象的原始指针会被安全的保存在返回的std::shared_ptr对象中，然后另一std::make_shared被调用。如果此时产生了异常，那std::shared_ptr析构会知道于是它所拥有的对象会被销毁。<br></p> 
+<p dir="ltr">使用std::make_unique来代替new在写异常安全的代码里和使用std::make_shared一样重要。<br></p> 
+<p dir="ltr">make函数的不足</p> 
+<p dir="ltr">make函数都不允许使用定制删除器，但是std::unique_ptr和std::shared_ptr的构造函数都可以。</p> 
+<p dir="ltr">make函数不能完美传递一个initializer_list。&nbsp;</p> 
+<p dir="ltr">替代方案：</p> 
+<p dir="ltr">// initializer_list&lt;int&gt; aa =&nbsp;{1,2,3};&nbsp;//&nbsp;或者</p> 
+<p dir="ltr">auto aa =&nbsp;{1,2,3};</p> 
+<p dir="ltr">auto a = make_shared&lt;vector&lt;int&gt;&gt;(aa);</p> 
+<p dir="ltr">// auto b = make_shared&lt;vector&lt;int&gt;&gt;({1,2,3});&nbsp;//&nbsp;错误</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">2</p> 
+<p dir="ltr">3</p> 
+<p dir="ltr">4</p> 
+<p dir="ltr">对象的内存可能无法及时回收</p> 
+<p dir="ltr">虽然使用std::make_shared可以减少了内存分配的次数，提高效率，但由于控制块与对象都在同一块动态分配的内存上，所以当对象的引用计数变为0，对象被销毁（析构函数被调）后，该对象所占内存仍未释放，直到控制块同样也被销毁，内存才会释放。<br></p> 
+<p dir="ltr">我们知道，在控制块中包含两个计数：shared count和weak count，分别表示std::shared_ptr和std::weak_ptr对对象的引用计数，只有当shared count和weak count都为0时，控制块才会被销毁。<br></p> 
+<p dir="ltr">换句话说，只要有std::weak_ptr指向一个控制块（weak count大于0），那控制块就一定存在。只要控制块存在，包含它的内存必定存在。通过std::shared_ptr的make函数分配的内存在最后一个std::shared_ptr和最后一个std::weak_ptr被销毁前不能被释放。<br></p> 
+<p dir="ltr">构造函数是保护或私有时，无法使用make_shared。&nbsp;</p> 
+<p dir="ltr">替代方案：</p> 
+<p dir="ltr">class A {</p> 
+<p dir="ltr">public:</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; static std::shared_ptr&lt;A&gt; create()&nbsp;{</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return std::make_shared&lt;A&gt;();</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp;&nbsp;}</p> 
+<p dir="ltr">protected:</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; A()&nbsp;{}</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; A(const A &amp;)&nbsp;= delete;</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; const A &amp;operator=(const A &amp;)&nbsp;= delete;</p> 
+<p dir="ltr">};<br></p> 
+<p dir="ltr">std::shared_ptr&lt;A&gt; foo()&nbsp;{</p> 
+<p dir="ltr">&nbsp;&nbsp;&nbsp; return A::create();</p> 
+<p dir="ltr">}</p> 
+<p dir="ltr">1</p> 
+<p dir="ltr">2</p> 
+<p dir="ltr">3</p> 
+<p dir="ltr">4</p> 
+<p dir="ltr">5</p> 
+<p dir="ltr">6</p> 
+<p dir="ltr">7</p> 
+<p dir="ltr">8</p> 
+<p dir="ltr">9</p> 
+<p dir="ltr">10</p> 
+<p dir="ltr">11</p> 
+<p dir="ltr">12</p> 
+<p dir="ltr">13</p> 
+<p dir="ltr">14</p> 
+<p dir="ltr">参考链接</p> 
+<p dir="ltr">---------------------&nbsp;</p> 
+<p dir="ltr">作者：SigalHu </p> 
+<p dir="ltr">来源：CSDN&nbsp;</p> 
+<p dir="ltr">原文：https://blog.csdn.net/u011475134/article/details/76714243&nbsp;</p> 
+<p dir="ltr">版权声明：本文为博主原创文章，转载请附上博文链接！<br></p> 
+<p dir="ltr">refer：&nbsp;<a rel="nofollow" href="https://stackoverflow.com/questions/12030650/when-is-stdweak-ptr-useful" target="_blank">When is std::weak_ptr useful?</a><br></p>
+													
+												</div>

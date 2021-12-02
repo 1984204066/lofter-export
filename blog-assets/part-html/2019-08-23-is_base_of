@@ -1,0 +1,20 @@
+<div class="txtcont">
+													
+													
+													<p>明白了就看看这个 is_base_of <br>&nbsp;&nbsp;<br> namespace details {&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; template &lt;typename Base&gt; std::true_type is_base_of_test_func(const volatile Base*);&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; template &lt;typename Base&gt; std::false_type is_base_of_test_func(const volatile void*);&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; template &lt;typename Base, typename Derived&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; using pre_is_base_of = decltype(is_base_of_test_func&lt;Base&gt;(std::declval&lt;Derived*&gt;()));&nbsp;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// with &lt;experimental/type_traits&gt;:&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// template &lt;typename Base, typename Derived&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// using pre_is_base_of2 = std::experimental::detected_or_t&lt;std::true_type, pre_is_base_of, Base, Derived&gt;;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; template &lt;typename Base, typename Derived, typename = void&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; struct pre_is_base_of2 : public std::true_type {&nbsp;};&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// note std::void_t is a C++17 feature <br>&nbsp;&nbsp;&nbsp;&nbsp; template &lt;typename Base, typename Derived&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; struct pre_is_base_of2&lt;Base, Derived, std::void_t&lt;pre_is_base_of&lt;Base, Derived&gt;&gt;&gt;&nbsp;:&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public pre_is_base_of&lt;Base, Derived&gt;&nbsp;{&nbsp;};&nbsp;<br>&nbsp;}&nbsp;<br>&nbsp;&nbsp;&nbsp;<br> template &lt;typename Base, typename Derived&gt;&nbsp;<br> struct is_base_of :&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; public std::conditional_t&lt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::is_class&lt;Base&gt;::value &amp;&amp; std::is_class&lt;Derived&gt;::value,&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; details::pre_is_base_of2&lt;Base, Derived&gt;,&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::false_type <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&nbsp;{&nbsp;};&nbsp;</p> 
+<p><br></p> 
+<p><a rel="nofollow" href="https://stackoverflow.com/questions/27687389/how-does-void-t-work" target="_blank">https://stackoverflow.com/questions/27687389/how-does-void-t-work</a></p> 
+<p>has_member&lt; A &gt;::value&nbsp;首先找到的是主定义has_member&lt; A, void &gt;</p> 
+<blockquote> 
+ <p>template&lt; class , class = void &gt;</p> 
+ <p>struct has_member : std::false_type{&nbsp;};</p> 
+</blockquote> 
+<p>然后呢找特化：</p> 
+<blockquote> 
+ <p>template&lt; class T &gt;</p> 
+ <p>struct has_member&lt; T , void_t&lt; decltype( T::member )&nbsp;&gt;&nbsp;&gt;&nbsp;: std::true_type{&nbsp;};<br></p> 
+</blockquote> 
+<p>所以这个特化必须匹配has_member&lt; A, void &gt;，&nbsp;所以要用void_t</p> 
+<p><br></p>
+													
+												</div>

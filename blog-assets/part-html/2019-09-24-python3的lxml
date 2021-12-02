@@ -1,0 +1,16 @@
+<div class="txtcont">
+													
+													
+													<p><a rel="nofollow" href="https://www.jb51.net/article/142670.htm" target="_blank">lxml 学习笔记</a></p> 
+<p>如果某个属性的值有多个时，我们可以使用contains()函数来获取</p> 
+<p>result1=html.xpath('//li[contains(@class,"aaa")]/a/text()')</p> 
+<p>同时匹配多个属性，此时可用运用and运算符来连接</p> 
+<p>result1=html.xpath('//li[contains(@class,"aaa") and @name="fore"]/a/text()')</p> 
+<p><br></p> 
+<p><a rel="nofollow" href="https://stackoverflow.com/questions/7474972/python-lxml-append-element-after-another-element" target="_blank">https://stackoverflow.com/questions/7474972/python-lxml-append-element-after-another-element</a></p> 
+<p>contentdiv = contentnav.getparent()</p> 
+<p><br></p> 
+<p><a rel="nofollow" href="https://stackoverflow.com/questions/23282241/lxml-difference-between-element-addnext-and-insert-in-handling-tail" target="_blank">https://stackoverflow.com/questions/23282241/lxml-difference-between-element-addnext-and-insert-in-handling-tail</a><br></p> 
+<p>xml[0].tail.find("italic")<br></p>
+													
+												</div>

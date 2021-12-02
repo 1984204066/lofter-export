@@ -1,0 +1,76 @@
+<div class="txtcont">
+													
+													
+													<p>求值是 lisp 解释器的核心，理解了求值过程也就学会了 lisp 编程的一半。</p> 
+<blockquote> 
+ <p>&nbsp;一个symbol可以同时指代变量和函数，就是说一个foo，即是变量，又是&nbsp;函数，在lisp里面是合法的。&nbsp;</p> 
+ <p>(defun foo (x)&nbsp;(* x x))</p> 
+ <p>(setq foo 5)</p> 
+ <p>(foo foo)</p> 
+ <p>25<br></p> 
+</blockquote> 
+<p>一个要求值的 lisp 对象被称为表达式（form）。所有的表达式可以分为三种：&nbsp;符号、列表和其它类型（废话）。</p> 
+<ol style="list-style-type:decimal;"> 
+ <li><p>自求值表达式。前面说过数字、字符串、向量都是自求值表达式。还有两个特殊的符号 t 和 nil 也可以看成是自求值表达式。最特别的是，()求值返回nil，因为()和 nil根本就是一回事情。&nbsp;</p></li> 
+ <li><p>符号的求值结果就是符号的值。如果它没有值，就会出现void-variable 的错误。</p></li> 
+ <li><p>列表表达式。而列表表达式又可以根据第一个元素分为函数调用&nbsp;、宏调用和特殊表达式（special form）三种。列表的第一个表达式如果是一个&nbsp;符号，解释器会查找这个表达式的<strong>函数值</strong>。如果函数值是另一个符号，则会继续&nbsp;&nbsp;查找这个符号的函数值。这称为“symbol function indirection”。最后直到某&nbsp;&nbsp;个符号的函数值是一个 lisp 函数（lambda&nbsp;表达式）、byte-code&nbsp;函数、原子函数（primitive function）、宏、特殊表达式或 autoload 对象。如果不是这&nbsp;些类型，比如某个符号的函数值是前面出现的某个符号导致无限循环，或者某个&nbsp;符号函数值为空，都会导致一个错误 invalid-function。<br></p></li> 
+</ol> 
+<p>求值过程就是沿着symbol路径一路走下去直到终点。</p> 
+<p>'&nbsp;用来停止求职，&nbsp;可以认为是一个地址操作&amp;并且终止求值。quote引用一个对象，那么就是各种类型的对象都可以，返回这个对象地址。所以下面'cons 返回的是cons这个函数的地址。<br></p> 
+<blockquote> 
+ <p>估计是 elisp 为了优化，quote&nbsp;产生的对象是返回的是一个类似与引用<br>的东西。&nbsp;任何 side-effect 的 set*&nbsp;函数都可以修改这个一个值</p> 
+ <p>(setq a '(1 2 3))&nbsp;<br>&nbsp;(setq b a)&nbsp;<br>&nbsp;(setcdr b '(2 4))&nbsp;;;&nbsp;这个会改变 a <br></p> 
+</blockquote> 
+<p><br></p> 
+<p><br></p> 
+<blockquote> 
+ <p>求值有两种，或者说两个地址空间。</p> 
+ <ol style="list-style-type:decimal;"> 
+  <li><p> function value</p></li> 
+  <li><p>symbol value （应该叫 variable value？）<br></p></li> 
+ </ol> 
+</blockquote> 
+<p>elisp中，函数和变量并不是完全平等的，你不能再象 scheme中那样了。即使你(setq func (lambda&nbsp;(...)))，也无法直接&nbsp;把它做为一个function来做，因为setq就注定了func只能被当作一个变量&nbsp;来处理，而lisp只会试图去找func对应的函数。</p> 
+<blockquote> 
+ <p>(defun f (x)&nbsp;(* x x))&nbsp;；&nbsp;(f 2)是正确的&nbsp;(funcall f 2)也是正确的。可以说defun给f 定义&nbsp;了两个值。f的函数值&nbsp;为这个函数， f的symbal值为这个函数的指针。对于函数指针来说&nbsp;只能用 funcall.&nbsp;&nbsp;所以&nbsp;(f 2)&nbsp;和&nbsp;(funcall f 2)&nbsp;都是正确的。<br></p> 
+ <p><strong>NO! NO!! NO!!!&nbsp;&nbsp;(funcall f 2)不正确&nbsp;</strong>经emacs 26的 eshell交互执行lisp验证&nbsp;(也可以在scratch buffer里面 C-j 执行）<br></p> 
+ <p>Symbol’s value as variable is void: f</p> 
+ <p><br>&nbsp;然后执行&nbsp;(setq f 1)&nbsp;<br>&nbsp;这个时候 f的 symbal值被改掉了。&nbsp;<br>&nbsp;(f 2)还是成功,但是&nbsp;(funcall f 2)失败了。&nbsp;</p> 
+ <p>&nbsp;<br></p> 
+</blockquote> 
+<p>对于form来说有3种执行。</p> 
+<ol style="list-style-type:decimal;"> 
+ <li><p>不求职，如&nbsp;(setq foo 123)&nbsp;;foo是不求值的。<br></p></li> 
+ <li><p>取function value,&nbsp;如&nbsp;(setq foo (lambda&nbsp;(x)&nbsp;(* 3 x)))&nbsp;，直接调用(foo 5)不能执行是因为foo作为第一个元素，求的是function cell中的值。你不得不(funcall foo 123),&nbsp;(apply foo 1 2 3)。funcall和apply的关系：&nbsp;&nbsp;(funcall f x y ...)等价于(apply f (list x y ...))<br></p></li> 
+ <li><p>取symbol value,&nbsp;其他的就都是这种情况。</p></li> 
+</ol> 
+<blockquote> 
+ <p>(setq foo (lambda&nbsp;(x)&nbsp;(* 3 x)))&nbsp;;&nbsp;(lambda (x)&nbsp;(* 3 x))&nbsp;<br>&nbsp;(setq bar '(foo 5))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;(foo 5)&nbsp;<br>&nbsp;(car bar)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; foo <br>&nbsp;(funcall foo 5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; 15 <br>&nbsp;(funcall (car bar)&nbsp;(car (cdr bar)))&nbsp;; wrong! why?&nbsp;</p> 
+ <p>(car bar)是符号'foo，而不是变量foo</p> 
+ <p>类似的</p> 
+ <p>(setq foo 5）</p> 
+ <p>(setq bar 'foo)</p> 
+ <p>(defun f (x)&nbsp;(* x x))</p> 
+ <p>f(5)&nbsp;;&nbsp;正确</p> 
+ <p>f(bar)&nbsp;;&nbsp;错误，&nbsp;相当于&nbsp;(*&nbsp;'foo 'foo)</p> 
+ <p><br></p> 
+ <p>所以要&nbsp;(funcall (symbol-value&nbsp;(car bar)) 3)&nbsp;</p> 
+ <p>比如象(funcall cons 1 2)这样就是错误的&nbsp;而(funcall 'cons 1 2)就是正确的。（因为cons没有variable value？）<br></p> 
+ <p>(defun tmp (x)&nbsp;<br>&nbsp;&nbsp;&nbsp;(let*&nbsp;((foo (lambda&nbsp;(x)&nbsp;(1+&nbsp; x)))&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(bar (lambda&nbsp;(x)&nbsp;(* 3 x)))&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(y '((foo 3)&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(bar 5)))&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(z '(bar 5)))&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(mapcar (lambda&nbsp;(var)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(funcall (symbol-value&nbsp;(car var))&nbsp;(nth 1 var))) y)))&nbsp;<br>&nbsp;(tmp 5)&nbsp;<br></p> 
+</blockquote> 
+<p>List的存在是lisp得名的原因。list只有三个基本操作：cons，car，cdr。cons表示的是，将一个symbol 添加到某个现有list的表头上去；car表示取的某个list的表头；cdr表示取的某个list除了表头之外的剩余部分。car和cdr是标准的lisp黑话，没用过lisp系语言的人肯定不会知道&nbsp;这两个词什么意思。</p> 
+<p><br></p> 
+<p>从概念上来说，cons cell 其实非常简单的，就是两个有顺序的元素。第一&nbsp;<br>&nbsp;个叫 CAR，第二个就 CDR。CAR 和 CDR 名字来自于 Lisp。它最初在IBM 704机&nbsp;器上的实现。在这种机器有一种取址模式，使人可以访问一个存储地址中的“地&nbsp;址（address）”部分和“减量（decrement）”部分。CAR 指令用于取出地址部分&nbsp;，表示(Contents of Address part of Register)，CDR 指令用于取出地址的减&nbsp;量部分(Contents of the Decrement part of Register)。cons cell 也就是 construction of cells。car 函数用于取得 cons cell 的 CAR 部分，cdr&nbsp;取&nbsp;得 cons cell 的 CDR 部分。cons cell 如此简单，但是它却能衍生出许多高级&nbsp;的数据结构，比如链表，树，关联表等等。</p> 
+<p>按列表最后一个 cons cell 的 CDR 部分的类型分，可以把列表分为三类。如果&nbsp;它是 nil 的话，这个列表也称为“真列表”(true list)。'(1 2 3)</p> 
+<p>如果既不是 nil 也不&nbsp;是一个 cons cell，则这个列表称为“点列表”(dotted list)。'(1 2 . 3)</p> 
+<p>还有一种可能，它指向列表中之前的一个 cons cell，则称为环形列表(circular list)。'(1 .&nbsp;#1=(2 3 .&nbsp;#1#))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;=&gt;&nbsp;(1 2 3 .&nbsp;#1)&nbsp;<br></p> 
+<p><br></p> 
+<p>如果把真列表最后一个 cons cell 的 nil 省略不写，也就是&nbsp;(1&nbsp;. nil)&nbsp;简写成&nbsp;(1)，把&nbsp;( obj1 .&nbsp;( obj2 . list))&nbsp;简写成&nbsp;(obj1 obj2 . list)，那么列&nbsp;<br>&nbsp;表最后可以写成一个用括号括起的元素列表：&nbsp;<br>&nbsp;&nbsp;<br>&nbsp;'(1 .&nbsp;(2&nbsp;.&nbsp;(3&nbsp;. nil)))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;=&gt;&nbsp;(1 2 3)</p> 
+<blockquote> 
+ <p>列表和cons是等价的，因为car和cdr对他们的操作结果是一样的。??</p> 
+ <p>第一&nbsp;'("first"&nbsp;. 1)&nbsp;，不是一个 list &nbsp;<br>&nbsp;什么是 list <br> a . nil 是一个 list <br> b.&nbsp;如果 A &nbsp;是一个 list ,&nbsp;(cons B A)&nbsp;是一个 list <br>&nbsp;&nbsp;<br>&nbsp;注意&nbsp;(equal (cons 1 1)&nbsp;'( 1 . 1))&nbsp;返回 t &nbsp;<br> list 和 cons cell 是不一样的东西。&nbsp;<br>&nbsp;是 list 的东西不一定是&nbsp; cons cell ,&nbsp;例如 nil ,&nbsp;&nbsp;<br>&nbsp;(consp nil)&nbsp;=&gt; nil <br>&nbsp;（listp nil)&nbsp;=&gt; t <br>&nbsp;是 cons cell 的东西不一定是 list &nbsp;<br>&nbsp;但是 listp 这个函数比较特殊&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; This function returns `t' if OBJECT is a cons cell or `nil'.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Otherwise, it returns `nil'.&nbsp;<br>&nbsp;他不是真正判断一个类型是不是 list .&nbsp;</p> 
+ <p>scheme&nbsp;语言也许在 list 和 cons cell 上有更加明确的定义&nbsp;<br> guile&gt;&nbsp;(pair?&nbsp;(cons 1 1))&nbsp;<br>&nbsp;#t <br> guile&gt;&nbsp;(list?&nbsp;(cons 1 1))&nbsp;<br>&nbsp;#f <br> guile&gt;&nbsp;(equal?&nbsp;(cons 1 1)&nbsp;'( 1 . 1))&nbsp;<br>&nbsp;#t <br> guile&gt;&nbsp;(list?&nbsp;'())&nbsp;<br>&nbsp;#t <br> guile&gt;&nbsp;(pair?&nbsp;'())&nbsp;<br>&nbsp;#f <br></p> 
+</blockquote> 
+<p>字符的读入语法是在字符前加上一个问号，比如&nbsp;?A 代表字符&nbsp;'A'。&nbsp;<br>&nbsp;&nbsp;<br>&nbsp;?A &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;=&gt; 65 <br>&nbsp;?a &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;=&gt; 97 <br>&nbsp;&nbsp;<br><br></p>
+													
+												</div>

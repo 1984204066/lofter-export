@@ -1,0 +1,49 @@
+<div class="txtcont">
+													
+													
+													<p>bios + gpt 折腾<br></p> 
+<p>reference :</p> 
+<p>https://blog.csdn.net/littlesmallless/article/details/59173072<br></p> 
+<p>https://bbs.pcbeta.com/viewthread-1573292-1-1.html<br></p> 
+<p>很好。</p> 
+<p>一点注意：</p> 
+<p>grub2-install /dev/sda</p> 
+<p>就把core.img写入Boot Partition.不是sda1.</p> 
+<p>references:</p> 
+<p>https://www.lightofdawn.org/wiki/wiki.cgi/BIOSBootGPT<br></p> 
+<p>https://blog.csdn.net/sqhxhg/article/details/8456689<br></p> 
+<p>BIOS系统：</p> 
+<p>1、GRUB（2）：需要2MiB“BIOS启动分区“（requires a 2 MiB "BIOS Boot Partition"&nbsp;(EF02 type code in gdisk and bios_grub flag in GNU Parted) in BIOS systems to embed itscore.img file due to lack of post-MBR embed gap in GPT disks. Runtime GPT support in GRUB(2) is provided by thepart_gpt module. See<a target="_blank" rel="nofollow" href="https://wiki.archlinux.org/index.php/GRUB#GPT_specific_instructions">GRUB#GPT_specific_instructions</a> for more information）;</p> 
+<p><br></p> 
+<p>https://wiki.archlinux.org/index.php/GRUB<br></p> 
+<p>On a BIOS/<a target="_blank" rel="nofollow" href="https://wiki.archlinux.org/index.php/GPT">GPT</a> configuration a <a target="_blank" rel="nofollow" href="https://www.gnu.org/software/grub/manual/html_node/BIOS-installation.html">BIOS boot partition</a> is required. GRUB embeds its core.img into this partition.</p> 
+<p><strong>Note:</strong></p> 
+<ul style="list-style-type:disc;"> 
+ <li><p>Before attempting this method keep in mind that not all systems will be able to support this partitioning scheme. Read more on <a target="_blank" rel="nofollow" href="https://wiki.archlinux.org/index.php/GUID_Partition_Table#BIOS_systems">GUID partition tables</a>[<a target="_blank" rel="nofollow" href="https://wiki.archlinux.org/index.php/ArchWiki:Requests#Broken_section_links">broken link</a>: invalid section].</p></li> 
+ <li><p>This additional partition is only needed on a GRUB, BIOS/GPT partitioning scheme. Previously, for a GRUB, BIOS/MBR partitioning scheme, GRUB used the Post-MBR gap for the embedding the core.img). GRUB for GPT, however, does not use the Post-GPT gap to conform to GPT specifications that require 1_megabyte/2048_sector disk boundaries.</p></li> 
+ <li><p>For <a target="_blank" rel="nofollow" href="https://wiki.archlinux.org/index.php/UEFI">UEFI</a> systems this extra partition is not required, since no embedding of boot sectors takes place in that case. However, UEFI systems still require an <a target="_blank" rel="nofollow" href="https://wiki.archlinux.org/index.php/ESP">ESP</a>.</p></li> 
+</ul> 
+<p>grub 安装到c盘。</p> 
+<p>grub2-install&nbsp;--boot-directory=/mnt/c&nbsp;/dev/sda</p> 
+<p>syslinux/memdisk&nbsp;--&gt;&nbsp;/mnt/c/syslinux/memdisk&nbsp;</p> 
+<p># cat custom.cfg</p> 
+<p></p> 
+<p>menuentry 'Windows 7 (from VHD)'&nbsp;--class windows --class os $menuentry_id_option&nbsp;'osprober-chain-082608C02608B0AC'&nbsp;{</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; insmod part_gpt</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; insmod ntfs</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set root='hd0,gpt3'</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if [ x$feature_platform_search_hint = xy ]; then</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; search --no-floppy&nbsp;--fs-uuid&nbsp;--set=root&nbsp;--hint-bios=hd0,gpt3&nbsp;--hint-efi=hd0,gpt3&nbsp;--hint-baremetal=ahci0,gpt3&nbsp; 082608C02608B0AC</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; search --no-floppy&nbsp;--fs-uuid&nbsp;--set=root 082608C02608B0AC</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fi</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; linux16 /syslinux/memdisk harddisk</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; initrd16 /cwbootmgr.vhd</p> 
+<p>}</p> 
+<p><br></p> 
+<p>Hybrid 方法：<br></p> 
+<p>https://www.rodsbooks.com/gdisk/hybrid.html<br></p> 
+<p>https://www.rodsbooks.com/gdisk/bios.html</p> 
+<p><br></p>
+													
+												</div>

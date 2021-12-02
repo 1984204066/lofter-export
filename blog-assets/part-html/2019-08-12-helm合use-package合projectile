@@ -1,0 +1,64 @@
+<div class="txtcont">
+													
+													
+													<p><a rel="nofollow" href="https://www.imooc.com/article/251525" target="_blank">暴增 Emacs 生产力的十大最佳插件</a></p> 
+<ol style="list-style-type:decimal;"> 
+ <li><p>Ido-mode</p></li> 
+ <li><p>smex</p></li> 
+ <li><p>auto-complete</p></li> 
+ <li><p>YASnippet</p></li> 
+ <li><p>org-mode</p></li> 
+ <li><p>helm</p></li> 
+ <li><p>ace-jump-mode</p></li> 
+ <li><p>find-file-in-project</p></li> 
+ <li><p>flymake</p></li> 
+ <li><p>electric-pair<br></p></li> 
+</ol> 
+<p><a rel="nofollow" href="https://www.jianshu.com/p/ab585e1ef365" target="_blank">emacs操作&nbsp;-&nbsp;插件篇</a><br></p> 
+<p>使用emacs默认软件源安装软件速度比较慢，国内的用户一般需要替换软件源，这里我将软件源替换为清华镜像。</p> 
+<p>(require'package)(setq package-enable-at-startup nil)(setq package-archives '(("gnu"&nbsp;&nbsp;&nbsp;.&nbsp;"https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("melpa"&nbsp;.&nbsp;"https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))(package-initialize)&nbsp;&nbsp;<br></p> 
+<p><a rel="nofollow" href="https://www.jianshu.com/p/250301ebb7f9" target="_blank">超简单emacs配置</a></p> 
+<p>(use-package company<br>&nbsp;&nbsp;:ensure t<br>&nbsp;&nbsp;:bind (("C-c&nbsp;/". company-complete))<br>&nbsp;&nbsp;:diminish company-mode<br>&nbsp;&nbsp;:commands company-mode<br>&nbsp;&nbsp;:init<br>&nbsp;&nbsp;(setq<br>&nbsp;&nbsp; company-dabbrev-ignore-case nil<br>&nbsp;&nbsp; company-dabbrev-code-ignore-case nil<br>&nbsp;&nbsp; company-dabbrev-downcase nil<br>&nbsp;&nbsp; company-idle-delay 0<br>&nbsp;&nbsp; company-minimum-prefix-length 4)<br>&nbsp;&nbsp;:config<br>&nbsp;&nbsp;;; disables TAB in company-mode, freeing it for yasnippet<br>&nbsp;&nbsp;(global-company-mode)<br>&nbsp;&nbsp;(define-key company-active-map [tab] nil)<br>&nbsp;&nbsp;(define-key company-active-map (kbd&nbsp;"TAB") nil))<br><br><a rel="nofollow" href="https://blog.csdn.net/xh_acmagic/article/details/78939246" target="_blank">emacs配置</a></p> 
+<p>复杂配置，&nbsp;参考了doom-emacs</p> 
+<p>projectile-globally-ignored-file-suffixes '(".elc"".pyc"".o")</p> 
+<p><a rel="nofollow" href="https://emacs.stackexchange.com/questions/16497/how-to-exclude-files-from-projectile" target="_blank">How to exclude files from Projectile?</a></p> 
+<p>亭麻烦的。</p> 
+<p><a rel="nofollow" href="https://github.com/bbatsov/projectile/issues/1250" target="_blank">projectile-globally-ignored-directories not working with native indexing.</a><br></p> 
+<p><a rel="nofollow" href="https://github.com/bbatsov/projectile/issues/1119#" target="_blank">`projectile-globally-ignored-directories' only ignores top level directory.</a><br></p> 
+<p><a rel="nofollow" href="https://blog.csdn.net/u010164190/article/details/79578994" target="_blank">Emacs远程开发及projectile安装</a></p> 
+<p>简单的projectile配置</p> 
+<p><a rel="nofollow" href="https://ithelp.ithome.com.tw/articles/10201149" target="_blank">專案管理&nbsp;: Projectile</a>&nbsp;&nbsp;</p> 
+<p>(use-package projectile<br>&nbsp;&nbsp;:ensure t<br>&nbsp;&nbsp;:bind-keymap ("\C-c p"&nbsp;. projectile-command-map)<br>&nbsp;&nbsp;:config<br>&nbsp;&nbsp;(projectile-mode t)<br>&nbsp;&nbsp;(setq projectile-completion-system 'ivy)<br>&nbsp;&nbsp;(use-package counsel-projectile<br>&nbsp;&nbsp;&nbsp;&nbsp;:ensure t)<br>&nbsp;&nbsp;)<br><br>(use-package ag<br>&nbsp;&nbsp;:ensure t)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> 
+<p>我改的：</p> 
+<blockquote> 
+ <p>(use-package projectile<br>&nbsp;&nbsp;:ensure t<br>&nbsp;&nbsp;:diminish projectile-mode ;;即不让projectile-mode显示在modeline上?<br>&nbsp;&nbsp;:bind-keymap ("\C-p"&nbsp;. projectile-command-map)&nbsp;&nbsp;;;default is?.<br>&nbsp;&nbsp;:init (setq projectile-use-git-grep t<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; projectile-require-project-root nil)&nbsp;; make projectile usable for every directory<br>&nbsp;&nbsp;:config<br>&nbsp;&nbsp;(projectile-mode 1)<br>&nbsp;&nbsp;;(projectile-global-mode)&nbsp;;;obsolete<br>&nbsp;&nbsp;(setq ;projectile-cache-file&nbsp;(concat mage-cache-dir "projectile.cache")&nbsp;<br>&nbsp;&nbsp;&nbsp; projectile-enable-caching t<br>&nbsp;&nbsp;&nbsp; projectile-indexing-method 'alien<br>&nbsp;&nbsp;&nbsp;&nbsp;;projectile-known-projects-file (concat mage-cache-dir "projectile.projects")<br>&nbsp;&nbsp;&nbsp; projectile-globally-ignored-file-suffixes '(".elc"&nbsp;".pyc"&nbsp;".o"&nbsp;".Po")<br>&nbsp;&nbsp;&nbsp;&nbsp;;;projectile-globally-ignored-directories '(".deps")<br>&nbsp;&nbsp;&nbsp;&nbsp;;;By default Projectile uses Ido for completion. https://stackoverflow.com/questions/54043789/how-can-i-get-emacs-projectile-to-operate-like-vscodes-c-p<br>&nbsp;&nbsp;&nbsp;&nbsp;;;(Check the value of the variable projectile-completion-system to see if this has been configured differently in your Emacs.)<br>&nbsp;&nbsp;&nbsp; projectile-completion-system 'helm&nbsp;;;&nbsp;经常用ivy， https://www.jianshu.com/p/250301ebb7f9<br>&nbsp;&nbsp;&nbsp;&nbsp;)<br>&nbsp;&nbsp;(append '(".deps"&nbsp;"tmp"&nbsp;"log"&nbsp;"temp"&nbsp;"obj"&nbsp;"build"&nbsp;"Library"&nbsp;"StreamingAssets") projectile-globally-ignored-directories)<br>&nbsp;&nbsp;(use-package helm-projectile :ensure t))<br><br><br><br></p> 
+</blockquote> 
+<p>现需要安装git，&nbsp;<a rel="nofollow" href="https://git-scm.com/download/win" target="_blank">https://git-scm.com/download/win</a><br></p> 
+<p>因为我们打开了projectile-use-git-grep 。<br></p> 
+<p><a rel="nofollow" href="https://blog.sina.com.cn/s/blog_822426570102vmzp.html" target="_blank">emacs中projectile快捷键</a></p> 
+<p><a rel="nofollow" href="https://tuhdo.github.io/helm-projectile.html" target="_blank">Exploring large projects with Projectile and Helm Projectile</a></p> 
+<p>helm projectile 配合&nbsp;小demo动画。<br></p> 
+<p><a rel="nofollow" href="https://www.helplib.com/GitHub/article_85425" target="_blank">use-package,&nbsp;使用use-package简化你的.emacs</a></p> 
+<p>use-package 的使用方法。</p> 
+<p><a rel="nofollow" href="https://phenix3443.github.io/notebook/emacs/modes/use-package-manual.html" target="_blank">use-package manual</a><br></p> 
+<p><a rel="nofollow" href="https://www.pengmeiyu.com/blog/my-emacs-configuration/" target="_blank">My Emacs Configuration</a></p> 
+<p>一些例子,&nbsp;包括使用git<br></p> 
+<p><br></p> 
+<p>`M-x helm-find-file`(已绑定为`C-x C-f`)&nbsp; search files<br>&nbsp;&nbsp;**&nbsp;`C-f`&nbsp;返回到上级目录<br>&nbsp;&nbsp;**&nbsp;`C-j`&nbsp;进入目录<br>`M-x helm-M-x`(已绑定为`M-x`)&nbsp; enhanced M-x command<br>`M-x helm-recentf`&nbsp; search for recently edited files<br>`M-x helm-mini`&nbsp;集成了buffer 和 recentf<br>`M-x helm-buffers-list`&nbsp;列出缓冲区文件<br></p> 
+<p>&nbsp;<a rel="nofollow" href="https://blog.csdn.net/hedu135790/article/details/16851077" target="_blank">helm使用总结</a></p> 
+<p>(define-key helm-map (kbd&nbsp;"&lt;tab&gt;")&nbsp;'helm-execute-persistent-action)&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;(define-key helm-map (kbd&nbsp;"C-i")&nbsp;'helm-execute-persistent-action)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;(define-key helm-map (kbd&nbsp;"C-z")&nbsp;'helm-select-action)<br>&nbsp;```&nbsp;</p> 
+<p>这几个命令让helm更适合我们的操作，例如查找文件时直接tab进行文件名、路径补齐。</p> 
+<blockquote> 
+ <p>但是&nbsp;没有 helm-execute-persistent-action 啊！！</p> 
+ <p>用空格&nbsp;接着输入关键字<br></p> 
+</blockquote> 
+<p><a rel="nofollow" href="https://codeday.me/bug/20181229/476966.html" target="_blank">如何在目录内更改emacs helm-find-file默认操作而不是在dired中打开？</a></p> 
+<p><br></p> 
+<p><a rel="nofollow" href="https://www.cnblogs.com/astropeak/p/6219857.html" target="_blank">Emacs Helm:&nbsp;使用关键字搜索、获取、执行任何东西</a></p> 
+<p>例如：<br></p> 
+<p>M-x package 这时输入空格&nbsp;可以接着输入关键字 list， candidates 可以进一步narrowing。</p> 
+<p><br></p> 
+<p><a rel="nofollow" href="https://blog.csdn.net/hedu135790/article/details/16851077" target="_blank">helm使用总结</a></p> 
+<p><br></p>
+													
+												</div>

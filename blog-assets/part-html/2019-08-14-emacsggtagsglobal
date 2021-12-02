@@ -1,0 +1,25 @@
+<div class="txtcont">
+													
+													
+													<p><a rel="nofollow" href="https://blog.csdn.net/u010164190/article/details/79520054" target="_blank">Mac上emacs使用ggtags</a></p> 
+<p><a rel="nofollow" href="https://www.jianshu.com/p/652b384589cf" target="_blank">global, ggtags</a></p> 
+<p>执行 gtags 命令。可以看到生成了3个文件：GPATH, GRTAGS, GTAGS。执行 ls -alh命令，查看生成的文件大小.<br></p> 
+<p><a rel="nofollow" href="https://www.cnblogs.com/instinct-em/p/10628709.html" target="_blank">https://www.cnblogs.com/instinct-em/p/10628709.html</a></p> 
+<p><a rel="nofollow" href="https://www.newsmth.net/nForum/#!article/Emacs/63629" target="_blank">https://www.newsmth.net/nForum/#!article/Emacs/63629</a></p> 
+<p><br></p> 
+<p>看到很多人在讨论 ecb, etags,&nbsp;...&nbsp;，后来发现其实不是很好用.最近我发现一个东西叫 GNU Global <br></p> 
+<p>如果使用cygwin，则解压global的zip包到/usr/local下边。如果不用cygwin的话，只要复制global中bin目录的内容到系统路径就可以了，比如c:/windows，不过这样就无法方便的阅读manual了。</p> 
+<p><a rel="nofollow" href="https://www.gnu.org/software/global/download.html" target="_blank">https://www.gnu.org/software/global/download.html</a></p> 
+<p>解压出来，相应路径放到windows的PATH里面。让终端可执行global</p> 
+<p><br></p> 
+<p>让emacs缺省使用ggtags,&nbsp;而不是etags.<br></p> 
+<p>(ggtags-mode 1)&nbsp;要hook到c-common-hook中才能生效，好像。</p> 
+<blockquote> 
+ <p>(use-package ggtags<br>&nbsp;&nbsp;:config (ggtags-mode 1)&nbsp;;;好像没啥用,&nbsp;必须加到 c-mode-common-hook里面<br>&nbsp;&nbsp;)<br></p> 
+ <p><br></p> 
+</blockquote> 
+<blockquote> 
+ <p>;; https://tuhdo.github.io/c-ide.html<br>(use-package ggtags<br>&nbsp;&nbsp;:ensure t<br>&nbsp;&nbsp;:bind (:map ggtags-mode-map<br>&nbsp;&nbsp;("C-c g s"&nbsp;.&nbsp;'ggtags-find-other-symbol)<br>&nbsp;&nbsp;("C-c g h"&nbsp;.&nbsp;'ggtags-view-tag-history)<br>&nbsp;&nbsp;("C-c g r"&nbsp;.&nbsp;'ggtags-find-reference)<br>&nbsp;&nbsp;("C-c g f"&nbsp;.&nbsp;'ggtags-find-file)<br>&nbsp;&nbsp;("C-c g c"&nbsp;.&nbsp;'ggtags-create-tags)<br>&nbsp;&nbsp;("C-c g u"&nbsp;.&nbsp;'ggtags-update-tags))<br>&nbsp;&nbsp;:config &nbsp;;;(ggtags-mode 1)&nbsp;好像没啥用,&nbsp;必须加到 c-mode-common-hook里面<br>&nbsp;&nbsp;(add-hook 'c-mode-common-hook<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(lambda ()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(when (derived-mode-p&nbsp;'c-mode&nbsp;'c++-mode&nbsp;'java-mode&nbsp;'asm-mode)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ggtags-mode 1)))))<br><br><br></p> 
+</blockquote>
+													
+												</div>

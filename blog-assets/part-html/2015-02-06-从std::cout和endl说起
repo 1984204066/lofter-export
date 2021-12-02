@@ -1,0 +1,112 @@
+<div class="txtcont">
+													
+													
+													<p> https://www.cnblogs.com/lihaozy/archive/2012/05/09/2491791.html<br> https://blog.csdn.net/hityct1/article/details/4082832<br> <br> </p> 
+<p> </p> 
+<h2>正文</h2> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 问题是这样的……</p> 
+<p>相信下面这个程序凡是会写C++程序的同仁都认得，估计学会的第一个C++程序就是它了吧：</p> 
+<p><br> //---------------------------------------------- // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 水之真谛 // https://blog.csdn.net/FantasiaX //---------------------------------------------- #include int main(int argc, char *argv[]) { &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::cout &lt;&lt; "Hello, World." &lt;&lt; std::<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0; }<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我会写一点C语言的程序，于是在写这个程序的时候就对很多东西“想当然”了。比如对于操作符“&lt;&lt;”，在心里一直是与C语言的printf()函数对应起来的——认为它就是封装进了ostream对象中的printf()函数。既然是这样，那么对于“<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>”，自然就“想当然”地认为它是“n”了。</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 突然有一天，在Visual Studio弹出的代码自动完成窗口中发现，<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>不是一个成员变量（如果它代表一个字符，那么理应是一个字符类型的成员变量）而是一个成员函数！大脑中立刻蹦出一个解释：或许<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>函数的返回值是字符“n”吧？可是这个答案存活了不到一秒钟就被否定了——如果想让一个函数执行从而得到它的返回值，应该是调用这个函数，所以写法应该是“std::<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>()”而不是“std::<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>”。写成“std::<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>”是将函数名放在这里,并不是在调用这个函数。哈~~脑子里的概念开始互相打架了~~</p> 
+<p>&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 因为问题是出在了<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>上，所以一直在查<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>的定义——结果除了发现MSDN里有个Bug之外，一无所获L<br> </p> 
+<p><strong>MSDN</strong><strong>里是这样声名的：</strong></p> 
+<p>template class&lt;_Elem, _Tr&gt; basic_ostream&lt;_Elem, _Tr&gt;&amp; <a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>( basic_ostream&lt;_Elem, _Tr&gt;&amp; _Ostr );</p> 
+<p>红色标记的地方写错了:p<br></p> 
+<p><strong>C++ ISO</strong><strong>文档里是这样声名的：</strong></p> 
+<p>template basic_ostream&amp; <a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>(basic_ostream&amp; os);</p> 
+<p>按MSDN里模板的“写法”根本编译不过去，呵呵。<br> </p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 不过，MSDN里的说明还是非常有用的——Terminates a line and flushes the buffer. 可是函数的功能是“结束一行并冲洗缓冲区”，如果想执行这个功能，应该是调用这个函数、应该写<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>()而不是<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>啊……看来问题又绕回去了。于是这事儿就放下了。<br> </p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 今天遇到高手Sidney，又问起了这个问题。Sidney是研究过这个问题的，虽然没有给出我答案，但他提到这么一句话——“&lt;&lt;”操作符是被重载过的，可以接收一个函数作为参数。正好前几天我在写《深入浅出话回调》的时候写过类似的程序，经Sidney一点拨，顿时感觉豁然开朗。很快问题的答案就找到了——</p> 
+<ol> 
+ <li>1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 先查看的成员，找到一个全局对象cout</li> 
+ <li>2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 查看cout对象，发现它是ostream的一个实例</li> 
+ <li>3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 查看文件说明中的“&lt;&lt;”操作符，有10个重载，但是没有可将函数作为参数的</li> 
+ <li>4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 仔细想了想，会不会是从别处继承来的呢？（操作符其实就是简写了的函数，完全可以当函数来对待）</li> 
+ <li>5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 查看MSDN，发现ostream是由类模板basic_ostream &gt;生成的</li> 
+ <li>6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 查看basic_ostream &gt;的说明，发现它也具有“&lt;&lt;”操作符，并且有15个重载。</li> 
+ <li>7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其中的一个卸载形式是—— basic_ostream&amp; operator &lt;&lt; ( basic_ostream&amp; (*_Pfn)(basic_ostream&amp;) ); 说明cout的&lt;&lt;操作符可以接受一个函数指针（函数的地址）作为参数。 这个重载正好与<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>函数的声名相匹配，所以&lt;&lt;后面是可以跟着<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>的，也就是说，cout对象的&lt;&lt;操作符接受到<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>函数的地址后会在后台调用<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>函数，而<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>函数会结束当前行并冲洗buffer。<br> </li> 
+</ol> 
+<p>最后啰嗦一句——你可能会问：不是函数指针吗？为什么不写“std::cout&lt;&lt;&amp;<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>”而写“std::cout&lt;&lt;<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>”呢？实际上，函数名本身就代表的是函数的地址，&amp;<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>与<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>的值是一样的J</p> 
+<p>不信你试试下面的代码，结果与上面的一样：</p> 
+<p>//---------------------------------------------- // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 水之真谛 // https://blog.csdn.net/FantasiaX //---------------------------------------------- #include int main(int argc, char *argv[]) { &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::cout &lt;&lt; "Hello, World." &lt;&lt; &amp;std::<a title="endl" target="_blank" rel="nofollow" href="https://soft.zdnet.com.cn/files/list-0-0-139506-1-1.htm">endl</a>; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0; }</p> 
+<p><br></p> 
+<p><br></p> 
+<p>myend函数就是模拟endl函数的。它是个全局函数。为了达到与endl一样的用法，还定义了：</p> 
+<p>mystream&amp; operator&lt;&lt;(mystream&amp; (*fun)(mystream&amp;) );</p> 
+<p> </p> 
+<p> </p> 
+<p><b>[cpp]</b> <a title="view plain" target="_blank" rel="nofollow" href="https://blog.csdn.net/hityct1/article/details/4082832#">view plain</a><a title="copy" target="_blank" rel="nofollow" href="https://blog.csdn.net/hityct1/article/details/4082832#">copy</a></p> 
+<ol start="1"> 
+ <li>#include&nbsp;"stdafx.h"//非vc编译器可去掉&nbsp;&nbsp;</li> 
+ <li>#include&nbsp;&nbsp;&nbsp;</li> 
+ <li>#include&nbsp;&nbsp;&nbsp;</li> 
+ <li>#include&nbsp;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;</li> 
+ <li>using&nbsp;namespace&nbsp;std;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;</li> 
+ <li>class&nbsp;mystream&nbsp;&nbsp;</li> 
+ <li> {&nbsp;&nbsp;&nbsp;</li> 
+ <li>private:&nbsp;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;stringstream&nbsp;_ss;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;_str;&nbsp;&nbsp;&nbsp;</li> 
+ <li>public:&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;mystream&amp;&nbsp;myend(mystream&amp;&nbsp;ms);&nbsp;//5&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;ostream&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&amp;&nbsp;os,&nbsp;const&nbsp;mystream&amp;&nbsp;ms);&nbsp;//6&nbsp;&nbsp;</li> 
+ <li>public:&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;mystream&amp;&nbsp;operator&lt;&lt;&nbsp;(const&nbsp;int&amp;&nbsp;val&nbsp;)&nbsp;//1&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_ss&nbsp;&lt;&lt;val;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;*this;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</li> 
+ <li>&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;mystream&amp;&nbsp;operator&lt;&lt;&nbsp;(const&nbsp;char*&nbsp;s&nbsp;)&nbsp;//2&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_ss&nbsp;&lt;&lt;s;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;*this;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</li> 
+ <li>&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;mystream&amp;&nbsp;operator&lt;&lt;&nbsp;(const&nbsp;double&amp;&nbsp;val&nbsp;)&nbsp;//3&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_ss&nbsp;&lt;&lt;val;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;*this;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</li> 
+ <li>&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;mystream&amp;&nbsp;operator&lt;&lt;(mystream&amp;&nbsp;(*fun)(mystream&amp;)&nbsp;);&nbsp;//4&nbsp;&nbsp;</li> 
+ <li> };&nbsp;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;</li> 
+ <li> mystream&amp;&nbsp;myend(mystream&amp;&nbsp;ms)&nbsp;//这个是模仿std::endl函数&nbsp;&nbsp;</li> 
+ <li> {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;ms._str&nbsp;=&nbsp;ms._ss.str();&nbsp;//没做什么，仅仅是给ms._str赋值。&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ms;&nbsp;&nbsp;</li> 
+ <li> }&nbsp;&nbsp;</li> 
+ <li>&nbsp;&nbsp;</li> 
+ <li> ostream&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&amp;&nbsp;os,&nbsp;const&nbsp;mystream&amp;&nbsp;ms)&nbsp;&nbsp;</li> 
+ <li> {&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;os&lt;&lt;ms._str;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;os;&nbsp;&nbsp;</li> 
+ <li> }&nbsp;&nbsp;</li> 
+ <li>&nbsp;&nbsp;</li> 
+ <li> mystream&amp;&nbsp;mystream::operator&lt;&lt;(mystream&amp;&nbsp;(*fun)(mystream&amp;)&nbsp;)&nbsp;&nbsp;</li> 
+ <li> {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(NULL&nbsp;!=&nbsp;fun);&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;((*fun)(*this));&nbsp;&nbsp;</li> 
+ <li> }&nbsp;&nbsp;</li> 
+ <li>&nbsp;&nbsp;</li> 
+ <li>int&nbsp;main()&nbsp;&nbsp;</li> 
+ <li> {&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;mystream&nbsp;mystr;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;mystr&nbsp;&lt;&lt;&nbsp;5&lt;&lt;&nbsp;"abc"&nbsp;&lt;&lt;&nbsp;3.57&lt;&lt;&nbsp;myend;&nbsp;//调用1，2，3；然后调用4，而4又调用5&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;mystr&lt;&lt;endl;&nbsp;//输出mystr._str到屏幕，调用6&nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;</li> 
+ <li> &nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;&nbsp;&nbsp;</li> 
+ <li> }&nbsp;&nbsp;</li> 
+</ol> 
+<p>&nbsp;</p> 
+<br> 
+<br>
+													
+												</div>

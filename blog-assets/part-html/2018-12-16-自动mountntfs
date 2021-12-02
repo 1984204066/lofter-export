@@ -1,0 +1,25 @@
+<div class="txtcont">
+													
+													
+													<p>/etc/fstab</p> 
+<p>UUID="60CA0B46CA0B17C4"&nbsp;/mnt/lenovo &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ntfs &nbsp;&nbsp; defaults,noauto,user,exec 0 0</p> 
+<p><br></p> 
+<p>ntfs-3g 需要一些设置：&nbsp;<a rel="nofollow" href="https://www.tuxera.com/community/ntfs-3g-faq/#useroption" target="_blank">https://www.tuxera.com/community/ntfs-3g-faq/#useroption</a></p> 
+<p><strong><a rel="nofollow" target="_blank">Why do I get “fusermount: option blkdev is privileged” error?</a></strong></p> 
+<p>Unprivileged block device mounts work only if all the below requirements are met:</p> 
+<ol style="list-style-type:decimal;"> 
+ <li><p>ntfs-3g is compiled with integrated FUSE support</p></li> 
+ <li><p>the ntfs-3g binary is at least version 1.2506</p></li> 
+ <li><p>the ntfs-3g binary is set to setuid-root</p></li> 
+ <li><p>the user has access right to the volume</p></li> 
+ <li><p>the user has access right to the mount point</p></li> 
+</ol> 
+<p>The root user can make an ntfs-3g binary setuid-root as shown below<br>&nbsp; chown root $(which ntfs-3g)<br>&nbsp; chmod 4755 $(which ntfs-3g)<br>In such case the driver will also be able</p> 
+<ul style="list-style-type:disc;"> 
+ <li><p>to fix common FUSE kernel module loading problems</p></li> 
+ <li><p>to create the required but sometimes incorrectly removed or missing FUSE device file</p></li> 
+</ul> 
+<p>Please note that using setuid-root can result unforeseen privilege escalation and its usage is discouraged. Only the absolutely trusted users must be granted such access. Below is an example how this can be done for users in the ntfsuser group to be able to mount any NTFS volume if they have also the needed volume access rights.<br>&nbsp; addgroup ntfsuser<br>&nbsp; chown root:ntfsuser $(which ntfs-3g)<br>&nbsp; chmod 4750 $(which ntfs-3g)<br>&nbsp; usermod -aG ntfsuser allowed-user<br>The setuid-root ntfs-3g driver applies the principle of least privilege during its lifetime as a safety measure.</p> 
+<p><br></p>
+													
+												</div>

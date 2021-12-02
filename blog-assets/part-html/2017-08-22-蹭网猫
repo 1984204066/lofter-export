@@ -1,0 +1,13 @@
+<div class="txtcont">
+													
+													
+													<p>B8000：</p> 
+<p>echo "start set usb-ether..."<br>setprop sys.usb.config rndis<br>sleep 1<br>ifconfig rndis0 10.9.8.1 netmask 255.255.255.0 up<br>sleep 1<br>echo 1 &gt;&nbsp;/proc/sys/net/ipv4/ip_forward<br>sleep 1<br>iptables -P FORWARD ACCEPT<br>iptables -A FORWARD -i usb0 -o wlan0 -j ACCEPT<br>iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE<br>echo "finish setting"<br><br>HTC:</p> 
+<p>echo "start set usb-ether..."<br>echo 1 &gt;&nbsp;/sys/class/android_usb/f_rndis/on<br>sleep 1<br>ifconfig usb0 10.9.9.1 netmask 255.255.255.0 up<br>sleep 1<br>echo 1 &gt;&nbsp;/proc/sys/net/ipv4/ip_forward<br>sleep 1<br>iptables -P FORWARD ACCEPT<br>iptables -A FORWARD -i usb0 -o wlan0 -j ACCEPT<br>iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE<br>echo "finish setting"<br><br>cwm.sh，busybox设置root执行。</p> 
+<p>#!/system/bin/sh</p> 
+<p>#su &nbsp;#刷机大师的su不太对劲，这里调用会死。</p> 
+<p>echo start cwm</p> 
+<p>/system/bin/sh /data/app/igo&nbsp;&nbsp;#直接运行不行，加不上x位。</p> 
+<p>echo done</p>
+													
+												</div>

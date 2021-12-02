@@ -1,0 +1,21 @@
+<div class="txtcont">
+													
+													
+													<ul style="list-style-type:disc;"> 
+ <li><p>读这个文件，把文件每一行存在一个列表里并返回</p></li> 
+</ul> 
+<p>(defun read-file-as-lines (file-path)&nbsp;&nbsp;(with-temp-buffer&nbsp;&nbsp;&nbsp;&nbsp;(insert-file-contents file-path)&nbsp;&nbsp;&nbsp;&nbsp;(split-string (buffer-string)&nbsp;"\n" t)))</p> 
+<p>(read-file-as-lines "./1.txt")&nbsp;&gt;&nbsp;#'urls&nbsp;&nbsp;;;&nbsp;把结果给变量urls。<br></p> 
+<ul style="list-style-type:disc;"> 
+ <li><p>列表一个个打印出来</p></li> 
+</ul> 
+<p>&nbsp;(while urls<br></p> 
+<p>(message "%s"&nbsp;(pop urls)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br></p> 
+<p>(sleep-for 1)))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;; pop用于减少list</p> 
+<ul style="list-style-type:disc;"> 
+ <li><p>调用firefox</p></li> 
+</ul> 
+<p>"C:\Program Files\Mozilla Firefox\firefox.exe"&nbsp;-new-tab $urls</p> 
+<p><br></p>
+													
+												</div>

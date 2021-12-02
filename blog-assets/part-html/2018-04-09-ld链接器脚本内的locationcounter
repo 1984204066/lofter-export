@@ -1,0 +1,46 @@
+<div class="txtcont">
+													
+													
+													<p>https://www.newsmth.net/nForum/#!article/KernelTech/74604</p> 
+<p><br></p> 
+<p>.&nbsp;是指 memory layout，表示当前偏移量。</p> 
+<p>对于reloadeble，&nbsp;。&nbsp;代表了相邻的session和当前位置的偏移。0-offset</p> 
+<p><br></p> 
+<p>https://forum.osdev.org/viewtopic.php?f=1&amp;t=32840</p> 
+<p><br></p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;= 0x1111111;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* We are still in the previous section right now.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Although if orphan sections are not discarded,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we would be in one of those orphan sections instead.&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; R_in_same_section =&nbsp;.;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Relative address in another section by itself is still<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a relative address in that section, no matter where we use it.&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S_in_first_section = E_inside_current;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/DISCARD/&nbsp;:&nbsp;{&nbsp;*(*);&nbsp;}</p> 
+<p>The results for relocatable output.</p> 
+<p>0000000000000011 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; R_in_same_section<br>0000000000000011 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S_in_first_section</p> 
+<p><br></p> 
+<p>按照作者的解释&nbsp; R_in_same_section是在 another_section，偏移量.&nbsp;= 0x1111100;</p> 
+<p>后来又赋值&nbsp;&nbsp;.&nbsp;= 0x1111111;，&nbsp;所以R_in_same_section记录相对偏移量&nbsp;=&nbsp;</p> 
+<p>0x1111111 - 0x1111100 = 0x0000011</p> 
+<p>.section .text&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.globl _start </p> 
+<p> _start:&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; movq $1,&nbsp;%rax&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; movq $0,&nbsp;%rbx&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int$0x80</p> 
+<p></p> 
+<p>&nbsp;------test.lds------&nbsp;</p> 
+<p> SECTIONS </p> 
+<p>&nbsp;{&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;= 0x10;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_1 =&nbsp;.;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; custom_section :&nbsp;{&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;= 0x20;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_2 =&nbsp;.&nbsp;;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_3 = ABSOLUTE(.)&nbsp;;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; label_4 =&nbsp; label_2 * 2；</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(.text)&nbsp;;&nbsp;</p> 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</p> 
+<p>&nbsp;}</p> 
+<p><br></p> 
+<p>gcc -c test.s</p> 
+<p>ld test.o -T test.lds -o test</p> 
+<p>readelf -s test 和 nm test 输出类似。</p> 
+<p> label_2 =0x30,&nbsp;&nbsp;(0x20+0x10)</p> 
+<p> label_4=0x50,&nbsp;&nbsp;&nbsp;(0x20*2 +0x10)</p> 
+<p>可见ld之后test中 label_2,&nbsp;label_4从relative offset转变成了virtual address。<br></p>
+													
+												</div>
