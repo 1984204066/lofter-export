@@ -122,7 +122,7 @@ fn get_one_maybe(may佛学: Similor, may中医: Similor, mayit: Similor) -> (Sim
 }
 
 fn is_佛学(txt: &str) -> Similor {
-    let re = Regex::new(r"佛陀|禅修|阿含|如是我闻|八正|无我|巴利|南传|日月明行").unwrap();
+    let re = Regex::new(r"佛陀|禅修|阿含|如是我闻|八正|无我|无为法|巴利|南传|日月明行").unwrap();
     if re.is_match(txt) {
         return Similor::Strong;
     }
@@ -146,7 +146,7 @@ fn is_中医(txt: &str) -> Similor {
 }
 
 fn is_it(txt: &str) -> Similor {
-    let re =Regex::new(r"(?i)函数|软件|emacs|lisp|程序|计算机|boost|android|kernel|url|脚本|package|组合|系统|内存|绑定|下载|网盘|安装|cpp|c\+\+|gcc|client|server|memory|开源|gnome|kde|rust").unwrap();
+    let re =Regex::new(r"(?i)函数|软件|emacs|lisp|程序|计算机|boost|android|kernel|url|脚本|package|组合|系统|内存|绑定|下载|网盘|安装|cpp|c\+\+|gcc|client|server|sqlite|memory|开源|gnome|kde|rust").unwrap();
     if re.is_match(txt) {
         return Similor::Strong;
     }
